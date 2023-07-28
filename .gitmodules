@@ -1,0 +1,6 @@
+[submodule "pixel2style2pixel"]
+	path = pixel2style2pixel
+	url = https://github.com/yuelinn/pixel2style2pixel.git
+[submodule "stylegan2-pytorch"]
+	path = stylegan2-pytorch
+	url = https://github.com/rosinality/stylegan2-pytorch.git
