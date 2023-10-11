@@ -12,8 +12,8 @@ WARNING: The code in this repo has been frozen at the time of submission of the 
 <!-- TODO -->
 ### Datasets
 Datasets used in the paper are available online:
-<!-- + [Source dataset (UAVBonn17)]()>
-<!-- + [Target dataset (UGVBonn17)]()>
+<!-- + [Source dataset (UAVBonn17)]()-->
+<!-- + [Target dataset (UGVBonn17)]()-->
 + [Full generated train dataset](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/generated_dataset.zip)
 + [(Unlabelled) large pretrained dataset](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/bonn16ugv-all.zip)   
 For the source and target datasets, we are still working on public access for the labels. Meanwhile, you can email me to get preliminary access.
