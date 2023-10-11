@@ -15,14 +15,14 @@ Datasets used in the paper are available online:
 + [Source dataset (UAVBonn17)]()
 + [Target dataset (UGVBonn17)]()
 + [Full generated train dataset](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/generated_dataset.zip).
-+ [(Unlabelled) large pretrained dataset]()
++ [(Unlabelled) large pretrained dataset](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/bonn16ugv-all.zip)
 For the source and target datasets, we are still working on public access for the labels. Meanwhile, you can email me to get preliminary access.
 
 
 ### Weights
 Weights of the following are also available online:
-+ [StyleGAN2]()
-+ [inverter]()
++ [StyleGAN2](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_weights.pt)
++ [inverter](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/inverter_weights.pt)
 
 
 ## Installation
