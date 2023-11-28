@@ -1,8 +1,6 @@
 # StyleGenForLabels
 
-This is the official repo for the [paper](https://www.ipb.uni-bonn.de/wp-content/papercite-data/pdf/chong2023ral.pdf) "Unsupervised Generation of Labeled Training Images for Crop-Weed Segmentation in New Fields and on Different Robotic Platforms"
-
-This repo contains our research code used in the paper "Unsupervised Generation of Labeled Training Images for Crop-Weed Segmentation in New Fields and on Different Robotic Platforms". 
+This repo contains our research code used in the [paper](https://www.ipb.uni-bonn.de/wp-content/papercite-data/pdf/chong2023ral.pdf) "Unsupervised Generation of Labeled Training Images for Crop-Weed Segmentation in New Fields and on Different Robotic Platforms". 
 The code in this repo has been frozen at the time of submission of the paper and will not be extended, but feel free to email me if you have any issues.
 
 <!-- TODO (Linn): maybe write a better description for those who do not read the paper -->
