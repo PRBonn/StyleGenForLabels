@@ -5,7 +5,6 @@ The code in this repo has been frozen at the time of submission of the paper and
 
 <!-- TODO (Linn): maybe write a better description for those who do not read the paper -->
 <!-- TODO (Linn): it would be cool to add shield badges but i dont think any are relevant rn -->
-WARNING: The code in this repo has been frozen at the time of submission of the paper and will NOT be maintained.
 
 ## Reproducing Paper's Results
 <!-- TODO -->
