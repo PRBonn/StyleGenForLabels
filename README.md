@@ -19,7 +19,8 @@ For the source and target datasets, we are still working on public access for th
 
 ### Weights
 Weights of the following are also available online:
-+ [StyleGAN2](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_weights.pt)
+<!-- TODO  + If you want to train your own data: [pretrained StyleGAN2](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_ugvbonn16_weights.pt) -->
++ [StyleGAN2 trained on source and target](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_weights.pt)
 + [inverter](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/inverter_weights.pt)
 
 
@@ -65,16 +66,16 @@ python generate_mit_latents.py \
 --sample 1 \
 --pics <number_of_pairs> \
 --ckpt <path_to_StyleGAN2_checkpoint> \
---output_path <output_dir_path>
+--out_path <output_dir_path>
 ```
 For example,
 ```sh
 python generate.py \
---size 256 \
+--size 512 \
 --sample 1 \
 --pics 500 \
---ckpt ../weights/460000.pt \
---output_path ./styleinversion_trainset
+--ckpt ../weights/stylgan2_weights.pt \
+--out_path ./styleinversion_trainset
 ```
 
 2. Train the encoder:
