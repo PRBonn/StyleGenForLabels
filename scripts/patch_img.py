@@ -4,7 +4,6 @@ import os
 from torchvision import transforms
 from PIL import Image
 from glob import glob
-import numpy as np
 import math
 import click
 from tqdm import tqdm
@@ -12,14 +11,12 @@ from tqdm import tqdm
 
 def one_dir(img_dir, out_parent_dir, patch_w, patch_h, overlap, resize_r):
     out_dir = os.path.join(out_parent_dir,os.path.basename(img_dir))
-
     os.mkdir(out_dir)
 
     imgs=os.listdir(img_dir)
     for img_name in tqdm(imgs):
         imgpath = os.path.join(img_dir, img_name)
-        dirpath = os.path.join(out_dir, img_name.split('.')[0])
-        os.mkdir(dirpath)
+        dirpath = out_dir
 
         if (".JPG" in imgpath) or (".png" in imgpath) or (".jpg" in imgpath):  
             img_pil = Image.open(imgpath)
@@ -27,9 +24,7 @@ def one_dir(img_dir, out_parent_dir, patch_w, patch_h, overlap, resize_r):
 
             img_tensor = transforms.ToTensor()(img_pil)
             img_tensor = transforms.Resize(size=(int(ori_height*resize_r), int(ori_width*resize_r)))(img_tensor)
-            img_np = img_tensor.permute(1, 2, 0).numpy()
-            ori_height = img_np.shape[0]
-            ori_width = img_np.shape[1]
+
             count = 0 
             top_col_x = 0
 
@@ -38,8 +33,9 @@ def one_dir(img_dir, out_parent_dir, patch_w, patch_h, overlap, resize_r):
 
                 while top_row_y + patch_h <= ori_height:
                     patch_name=img_name.split('.')[0]+"_"+str(count)+"_"+str(top_row_y)+"_"+str(top_col_x)+".png"
-                    cropped_img = img_np[top_row_y:top_row_y+patch_h, top_col_x:top_col_x+patch_w]
-                    cropped_img_pil = Image.fromarray(cropped_img.astype(np.uint8))
+
+                    cropped_tensor = transforms.functional.crop(img_tensor, top_row_y, top_col_x, patch_h, patch_w)
+                    cropped_img_pil = transforms.ToPILImage()(cropped_tensor)
                     cropped_img_pil.save(os.path.join(dirpath, patch_name))
                     top_row_y = top_row_y + patch_h - overlap
                     count+=1
