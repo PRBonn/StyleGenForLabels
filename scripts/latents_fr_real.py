@@ -64,7 +64,7 @@ def load_gmm(path):
 
     return loaded_gmm
 
-def get_psp(f_en_ckpt, sg2_ckpt):
+def get_psp(f_en_ckpt):
     # load psp stuff
     ckpt = torch.load(f_en_ckpt, map_location='cpu')
     opts = ckpt['opts']
@@ -78,7 +78,7 @@ def get_psp(f_en_ckpt, sg2_ckpt):
 
 
 
-def est_gmm(n_comps, sefa_tensor, out_dir, f_en_ckpt, sg2_ckpt, data_path, test_workers):
+def est_gmm(n_comps, sefa_tensor, out_dir, f_en_ckpt, data_path, test_workers):
     out_img_dir = os.path.join(out_dir, "plants")
     out_latent_dir = os.path.join(out_dir, "latents")
     out_source_dir = os.path.join(out_dir, "ori")
@@ -90,7 +90,7 @@ def est_gmm(n_comps, sefa_tensor, out_dir, f_en_ckpt, sg2_ckpt, data_path, test_
     os.mkdir(out_source_dir)
     os.mkdir(out_multi_dir)
 
-    psp_net, opts = get_psp(f_en_ckpt, sg2_ckpt)
+    psp_net, opts = get_psp(f_en_ckpt)
 
     psp_latent_arr = None
     gmm = None
@@ -130,7 +130,6 @@ def est_gmm(n_comps, sefa_tensor, out_dir, f_en_ckpt, sg2_ckpt, data_path, test_
             psp_latent_arr = torch.cat([psp_latent_arr, psp_latent_pt.detach().cpu()])
 
     # fit latents 
-    import pdb; pdb.set_trace()
     psp_latent_arr = torch.matmul(psp_latent_arr, sefa_tensor['eigvec'])
     latentPLUS_size = 16*512
     X = psp_latent_arr.reshape((psp_latent_arr.shape[0], latentPLUS_size)) 
