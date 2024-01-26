@@ -6,10 +6,12 @@ import os
 import sys
 import random
 import numpy as np
+import click
+from tqdm import tqdm
 
-sys.path.append(".")
-sys.path.append("..")
-from options.test_options import TestOptions
+sys.path.append("../pixel2style2pixel")
+sys.path.append("../pixel2style2pixel/scripts")
+
 from models.psp import pSp
 from configs import data_configs
 from utils.common import tensor2im
@@ -18,15 +20,8 @@ from models.psp import get_keys
 from models.stylegan2.model import Generator
 
 
-
-latent_np_path = "/media/linn/export4tb/cache/chongral22_files/target/it460k/sampled_ugv_average_latent.npy"
-latent_np = np.load(latent_np_path)
-latent_torch = torch.from_numpy(latent_np).to(device="cuda:0")
-
-
 def dataset_getitem(from_path, to_path, target_transform, source_transform, is_test= True):
     from_im = Image.open(from_path)
-
 
     from_im = from_im.convert('L')
     # print(f"input shape {from_im.size}")
@@ -62,7 +57,7 @@ def dataset_getitem(from_path, to_path, target_transform, source_transform, is_t
 
 
 
-def one_pair(opts, dummy_annos, source_latent_path, target_latent_path, trunc, tag=None, alpha=1.0):
+def one_pair(opts, source_latent_path, target_latent_path, trunc, net, tag=None):
     # prepare image to be input to psp encoder to get w+ 
     dataset_args = data_configs.DATASETS[opts.dataset_type]
     transforms_dict = dataset_args['transforms'](opts).get_transforms()
@@ -79,12 +74,8 @@ def one_pair(opts, dummy_annos, source_latent_path, target_latent_path, trunc, t
 
 
     # TRUNCATION TRICK 
+    # swap_w = swap_w * alpha + latent_torch * (1.0-alpha)
 
-    # swap_w = latent_torch 
-    swap_w = swap_w * alpha + latent_torch * (1.0-alpha)
-
-    # my_noise = [None] * 16
-    # my_noise = torch.rand(1,1,4, device=opts.device)
     my_noise = None
     is_rand_z = True
 
@@ -110,87 +101,65 @@ def one_pair(opts, dummy_annos, source_latent_path, target_latent_path, trunc, t
     source_ori = tensor2im(source_ori[0][0])
     return swaped_img, source_ori, target_ori
 
-
-if __name__ == '__main__':
-    test_opts = TestOptions().parse()
-    ckpt = torch.load(test_opts.checkpoint_path, map_location='cpu')
+@click.command()
+@click.option(
+    "--stylegan_ckpt",
+    type=str,
+    help="path to the stylegan2 checkpoint",
+    default="../../downloads/stylegan2_weights.pt",
+)
+@click.option(
+    "--f_en_checkpoint_path",
+    type=str,
+    help="path to F_EN checkpoint",
+    default="../../downloads/inverter_weights.pt",
+)
+@click.option(
+    "--source_latent_dir",
+    type=str,
+    help="path to dir containing latent codes of the generated source dataset",
+    default="../../artifacts/source_generated_dataset/multi/latents",
+)
+@click.option(
+    "--source_img_dir",
+    type=str,
+    help="path to dir containing rgb images of the generated source dataset",
+    default="../../artifacts/source_generated_dataset/multi/images",
+)
+@click.option(
+    "--target_latent_dir",
+    type=str,
+    help="path to dir containing latent codes of the generated target dataset",
+    default="../../artifacts/target_generated_dataset/multi/latents",
+)
+@click.option(
+    "--target_img_dir",
+    type=str,
+    help="path to dir containing rgb images of the generated target dataset",
+    default="../../artifacts/target_generated_dataset/multi/images",
+)
+@click.option(
+    "--out_dir",
+    type=str,
+    help="path to the output_dir. Should not exist beforehand.",
+    default="../../artifacts/mixed_dataset",
+)
+def main(stylegan_ckpt, 
+        f_en_checkpoint_path, 
+        source_latent_dir, 
+        source_img_dir, 
+        target_latent_dir, 
+        target_img_dir, 
+        out_dir):
+    ckpt = torch.load(f_en_checkpoint_path, map_location='cpu')
     opts = ckpt['opts']
-    opts.update(vars(test_opts))
+    opts['checkpoint_path'] = f_en_checkpoint_path
     if 'learn_in_w' not in opts:
         opts['learn_in_w'] = False
     if 'output_size' not in opts:
-        opts['output_size'] = 1024
+        opts['output_size'] = 512 
     opts = Namespace(**opts)
     opts.unpaired=False
-
-    stylegan_ckpt = "/mnt/exp13/ckpts/sg2_ckpts/batch-mixed-labelled/checkpts/460000.pt"
-    # stylegan_ckpt = "/mnt/exp13/ckpts/sg2_ckpts/batch-mixed-labelled/checkpts/440000.pt"
-
-    """template
-    source_latent_dir=""
-    source_img_dir=""
-    target_img_dir=""
-    target_latent_dir=""
-    out_dir=""
-    """
-
-    # truncation trick for revision
-    source_latent_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k/multi/latents"
-    source_img_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k/multi/imgs"
-    target_img_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k/multi/imgs"
-    target_latent_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k/multi/latents"
-    out_dir="/media/linn/export4tb/cache/chongral22_files/jan16_trunc0_5"
-
-    """
-    # no filtering (for gan eval)
-    source_latent_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k_maxmin_all/multi/latents"
-    source_img_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k_maxmin_all/multi/imgs"
-    target_img_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k_maxmin_all/multi/imgs"
-    target_latent_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k_maxmin_all/multi/latents"
-    out_dir="/media/linn/export4tb/cache/chongral22_files/maxmin_gan"
-    """
-
-    # # feb3 one2one
-    # source_latent_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k/latents"
-    # source_img_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k/plants"
-    # target_img_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k/plants"
-    # target_latent_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k/latents"
-    # out_dir="/media/linn/export4tb/cache/chongral22_files/feb3_one2one"
-
-    # # dec 21 it460k
-    # source_latent_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k/multi/latents"
-    # source_img_dir="/media/linn/export4tb/cache/chongral22_files/source/it460k/multi/imgs"
-    # target_img_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k/multi/imgs"
-    # target_latent_dir="/media/linn/export4tb/cache/chongral22_files/target/it460k/multi/latents"
-    # out_dir="/media/linn/export4tb/cache/chongral22_files/jan16_vm3"
-
-
-
-    """nov 
-    source_latent_dir = "/media/linn/export4tb/cache/chongral22_files/onetoone/latents"
-    source_img_dir = "/media/linn/export4tb/cache/chongral22_files/onetoone/ori"  # FIXME i only need this because the classification uav/ugv is done only in img dir
-    target_img_dir = "/media/linn/export4tb/cache/chongral22_files/target/onetoone/ori"
-    target_latent_dir = "/media/linn/export4tb/cache/chongral22_files/target/onetoone/latents"
-    out_dir = "/media/linn/export4tb/cache/chongral22_files/target/onetoone/mixing"
-    """
-
-    """ dec 15, one-to-one case 
-    source_latent_dir = "/media/linn/export4tb/cache/chongral22_files/onetoone/latents"
-    source_img_dir = "/media/linn/export4tb/cache/chongral22_files/onetoone/plants"
-    target_img_dir = "/media/linn/export4tb/cache/chongral22_files/target/vm_scored_nov29/plants_vm5000"
-    target_latent_dir = "/media/linn/export4tb/cache/chongral22_files/target/vm_scored_nov29/latents_vm5000"
-    out_dir = "/media/linn/export4tb/cache/chongral22_files/target/vm_scored_nov29/mixed_1-1"
-    """
-
-    """
-    # dec 16 sampled k100 
-    source_latent_dir="/media/linn/export4tb/cache/chongral22_files/source/vm_scored/multi/latents_4k"
-    source_img_dir="/media/linn/export4tb/cache/chongral22_files/source/vm_scored/multi/imgs_4k"
-    target_img_dir="/media/linn/export4tb/cache/chongral22_files/target/vm_scored/multi/imgs_5k"
-    target_latent_dir="/media/linn/export4tb/cache/chongral22_files/target/vm_scored/multi/latents_5k"
-    out_dir="/media/linn/export4tb/cache/chongral22_files/mixed/uav4k_ugv5k"
-    """
-
 
     net = Generator(
         512, 512, 8, channel_multiplier=2
@@ -202,17 +171,10 @@ if __name__ == '__main__':
     net.eval()
     net.cuda()
 
-
-    # ckpt_dir = "/mnt/exp13/ckpts/psp_ckpts/running/bm_pt_ds_mixed_y_39_tv_l10_mse-pt"
-    # style_en_ckpt = "/mnt/exp13/ckpts/psp_ckpts/running/en_pt_batch-mixed_uni30_mse/checkpoints/iteration_240000.pt"
     swap_pos_onwards = 7
     
-    dummy_annos = "/media/linn/7ABF-E20F1/da_data/UAVbonn2017/train_only/annotations_onehot_styles/f12/sugar_f3_170930_02_subImages_2_frame90_crop4.png"
-    
-    # out_dir = os.path.join(f"/mnt/exp13/ckpts/sg2_ckpts/batch-mixed-labelled/stylemixing_latents_ugv_norand_baseline{swap_pos_onwards}-Lonly-test")
     os.mkdir(out_dir)
 
-    # target_recon_dir = os.path.join(out_dir, "target_recon")
     ori_source_dir = os.path.join(out_dir, "source_ori")
     ori_target_dir = os.path.join(out_dir, "target_ori")
     mixed_dir = os.path.join(out_dir, "mixed")
@@ -220,25 +182,17 @@ if __name__ == '__main__':
     os.mkdir(ori_source_dir)
     os.mkdir(ori_target_dir)
 
-    """
-    print(f"reading style encoder from {style_en_ckpt}...")
-    style_ckpt = torch.load(style_en_ckpt)
-    opts.n_styles = 16
-    style_encoder = psp_encoders.GradualStyleEncoder(50, 'ir_se', opts)
-    style_encoder.load_state_dict(get_keys(style_ckpt, 'encoder'), strict=True)
-    style_encoder.cuda().eval()
-    """
-
-    for source_img_name in os.listdir(source_img_dir):
+    for source_img_name in tqdm(os.listdir(source_img_dir)):
         if any(substr in source_img_name for substr in [".png", ".JPG", ".jpg"]):
             source_latent_name = source_img_name.split('.')[0]+".pt"
             source_latent_path = os.path.join(source_latent_dir, source_latent_name)
-            target_img_name = random.choice(os.listdir(target_img_dir))
-            target_latent_path = os.path.join(target_latent_dir, target_img_name.split('.')[0]+".pt")
+            target_latent_name = random.choice(os.listdir(target_latent_dir))
+            target_img_name = target_latent_name.split('.')[0]+".png"
+            target_latent_path = os.path.join(target_latent_dir, target_latent_name)
             # for tag in range(10):
             tag = None
             if True:
-                mixed, source_ori, target_ori= one_pair(opts, dummy_annos, source_latent_path, target_latent_path, swap_pos_onwards, tag=tag)
+                mixed, source_ori, target_ori= one_pair(opts, source_latent_path, target_latent_path, swap_pos_onwards, net, tag=tag)
 
                 if tag is not None:
                     source_img_namev = source_img_name.split('.')[0]+f"_v{tag}.png"
@@ -252,3 +206,6 @@ if __name__ == '__main__':
             print(f"skipping file {source_img_name} because it is not an img")
 
 
+
+if __name__ == '__main__':
+    main()
