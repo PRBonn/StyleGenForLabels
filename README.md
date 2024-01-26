@@ -18,8 +18,7 @@ For the source and target datasets, we are still working on public access for th
 
 ### Weights
 Weights of the following are also available online:
-<!-- TODO  + If you want to train your own data: [pretrained StyleGAN2](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_ugvbonn16_weights.pt) -->
-+ [StyleGAN2 trained on source and target](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_weights.pt)
++ [StyleGAN2](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/stylegan2_weights.pt)
 + [inverter](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/inverter_weights.pt)
 + [Semantic segmentation](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/erfnet_source.ckpt)
 
@@ -149,7 +148,7 @@ python latents_fr_real.py \
     + annotations
     + images
       + rgb   
-    + split.yaml  # describes train-val-test split
+    + split.yaml  # describes train-val-test split. Use script/split_train_val_test.py to generate this if needed.
 
 ##### 2.2. Train semantic segmentation on source image labels  
 You can download the [semantic segmentation network weights here](https://www.ipb.uni-bonn.de/html/projects/chong2023ral/erfnet_source.ckpt)   
