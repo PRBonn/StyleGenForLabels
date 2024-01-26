@@ -159,6 +159,8 @@ def sample_gmm(gmm, out_dir, num_samples_per_comp, sefa_tensor, psp_net):
 
     out_multi_dir = os.path.join(out_dir, "multi") 
     os.makedirs(out_multi_dir, exist_ok=True)
+    os.makedirs(os.path.join(out_multi_dir, "latents"), exist_ok=True)
+    os.makedirs(os.path.join(out_multi_dir, "images"), exist_ok=True)
     for dist in range(1):
         start_time = time.time()
         samples_w_ = gmm.sample(num_samples_per_comp)
@@ -184,8 +186,8 @@ def sample_gmm(gmm, out_dir, num_samples_per_comp, sefa_tensor, psp_net):
             veg_mask = get_vegmask(im_pil)
 
             if veg_mask > MIN_VEGMASK:
-                im_pil.save(f"{out_multi_dir}/source_{dist}_{instance_count}_{veg_mask}.png")
-                torch.save(latent_, f"{out_multi_dir}/source_{dist}_{instance_count}_{veg_mask}.pt")
+                im_pil.save(f"{out_multi_dir}/images/source_{dist}_{instance_count}_{veg_mask}.png")
+                torch.save(latent_, f"{out_multi_dir}/latents/source_{dist}_{instance_count}_{veg_mask}.pt")
 
 
 @click.command()
