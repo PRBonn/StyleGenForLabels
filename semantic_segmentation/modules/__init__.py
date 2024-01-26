@@ -1,0 +1,1 @@
+from modules.losses import get_criterion

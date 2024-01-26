@@ -53,3 +53,7 @@ urllib3==1.26.9
 wandb==0.13.0
 Werkzeug==2.0.3
 zipp==3.6.0
+scikit-image
+torchmetrics
+oyaml
+pytorch_lightning

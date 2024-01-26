@@ -1,0 +1,72 @@
+experiment:
+  id: UAVBonn
+data:
+  name: UAVBonn
+  path_to_dataset: /home/linn/sandbox_stylegen/artifacts/gen_pseudolabels_ds_source
+  num_workers: 12
+  check_data_split: True
+  image_normalizer:
+    name: 'single_image_normalizer'
+train:
+  max_epoch: 4096
+  n_gpus: 1
+  benchmark: True
+  loss: xentropy
+  learning_rate: 1.0e-4
+  weight_decay: 2.0e-04
+  class_weights:
+    - 1.45
+    - 5.92
+    - 8.33
+  dataset_size: null
+  batch_size: 2
+  shuffle: True
+  vis_train_every_x_epochs: 1024
+  postprocess_train_every_x_epochs: 1024
+  # color_data_augmentations:
+  #   vegetation_specific: null
+  geometric_data_augmentations:
+    random_hflip: null
+    random_vflip: null
+    random_shear:
+      max_x_shear: 15 # degree
+      max_y_shear: 15 # degree
+    random_crop:
+      height: 512
+      width: 512
+val:
+  dataset_size: null
+  batch_size: 1
+  check_val_every_n_epoch: 8
+  vis_val_every_x_epochs: 1024
+  postprocess_val_every_x_epochs: 1024
+  geometric_data_augmentations:
+    center_crop:
+      height: 512
+      width: 512
+test:
+  dataset_size: null
+  batch_size: 1
+  geometric_data_augmentations:
+    center_crop:
+      height: 512
+      width: 512
+predict:
+    batch_size: 1
+    geometric_data_augmentations:
+      center_crop:
+        height: 512
+        width: 512
+visualizers:
+  input_image_visualizer: null
+  semantic_label_gen:
+    classes_to_colors: {0: [0, 0, 0], 1: [0, 255, 0], 2: [255, 0, 0]}
+  semantic_map_visualizer:
+    classes_to_colors: {0: [0, 0, 0], 1: [0, 255, 0], 2: [255, 0, 0]}
+  semantic_overlay_visualizer:
+    classes_to_colors: {0: [0, 0, 0], 1: [0, 255, 0], 2: [255, 0, 0]}
+#   ground_truth_visualizer:
+#     classes_to_colors: {0: [0, 0, 0], 1: [0, 255, 0], 2: [255, 0, 0]}
+# postprocessors:
+#   keep_logits_postprocessor: null
+#   probablistic_softmax_postprocessor: null
