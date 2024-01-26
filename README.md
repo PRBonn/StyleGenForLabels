@@ -65,7 +65,6 @@ Remember to use the [pretrained weights](https://www.ipb.uni-bonn.de/html/projec
 ### Training Encoder $F_{EN}$
 1. Train the encoder:
 ```sh
-<<<<<<< HEAD
 cd pixel2style2pixel
 ```
 2. Change the path in configs/paths_config.py to point to your dir with all the rgb images from source and test domain.
@@ -73,24 +72,6 @@ The directories should contain both source and target rgb images combined togeth
 ```python
 'plant_train': '../dataset/train_images/',
 'plant_test': '../dataset/test_images/',
-=======
-cd scripts
-python generate_mit_latents.py \
---size <image_size_in_px> \
---sample 1 \
---pics <number_of_pairs> \
---ckpt <path_to_StyleGAN2_checkpoint> \
---out_path <output_dir_path>
-```
-For example,
-```sh
-python generate.py \
---size 512 \
---sample 1 \
---pics 500 \
---ckpt ../weights/stylgan2_weights.pt \
---out_path ./styleinversion_trainset
->>>>>>> main
 ```
 
 3. Run the training script
