@@ -112,7 +112,10 @@ python scripts/train.py \
 --output_size=512 \
 --max_steps=250000 \
 --stylegan_weights=../../checkpts/stylegan2_weights.pt \
---learning_rate=0.0001
+--learning_rate=0.0001 \
+--lpips_lambda=0 \
+--id_lambda=0 \
+--l2_lambda=0 
 ```
 
 ### Generating Training Image-Label Pairs
